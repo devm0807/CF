@@ -1,0 +1,162 @@
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+vector<ll> getfactors(ll n)
+{
+    vector<ll> factors;
+    for (ll i = 1; i * i <= n; i++)
+    {
+        if (n % i == 0)
+        {
+            factors.push_back(i);
+            if (i * i != n)
+            {
+                factors.push_back(n / i);
+            }
+        }
+    }
+    sort(factors.begin(), factors.end());
+    return factors;
+}
+
+ll gcd(ll a, ll b)
+{
+    if (a == -1 && b == -1)
+        return -1;
+    if (a == -1 || b == -1)
+        return max(a, b);
+    if (b == 0)
+        return a;
+    return gcd(b, a % b);
+}
+
+ll getFactorial(ll n, ll mod)
+{
+    ll answer = 1;
+    for (int i = 2; i <= n; i++)
+    {
+        answer = (answer * i) % mod;
+    }
+    return answer;
+}
+
+vector<bool> sieve(int n)
+{
+    vector<bool> is_prime(n + 1, true);
+    is_prime[0] = is_prime[1] = false;
+    for (int i = 2; i * i <= n; i++)
+    {
+        if (is_prime[i])
+        {
+            for (int j = i * i; j <= n; j += i)
+                is_prime[j] = false;
+        }
+    }
+    return is_prime;
+}
+
+// To begin with, it is worth mentioning that if you need to count the number
+// of certain integers in the interval [l,r], it is almost always more convenient
+// to do it this way: count the number of such integers in [0,r+1) (or in [1,r+1)),
+// and then subtract the count in [0,l) (or in [1,l)). Counting the number of integers
+// on a prefix is usually significantly easier than in an interval.
+
+struct DSU
+{
+    vector<int> p;
+    DSU(int N) : p(N + 1)
+    {
+        iota(p.begin(), p.end(), 0);
+    }
+    int find(int x)
+    {
+        return p[x] == x ? x : p[x] = find(p[x]);
+    }
+    bool unite(int a, int b)
+    {
+        a = find(a);
+        b = find(b);
+        if (a == b)
+            return false;
+        p[b] = a;
+        return true;
+    }
+};
+
+ll MOD = 998244353;
+
+ll inverse(ll a, ll mod)
+{
+    return a <= 1 ? a : mod - (long long)(mod / a) * inverse(mod % a, mod) % mod;
+}
+
+bool f()
+{
+    return false;
+}
+
+// O(n^2)
+ll nCk(ll n, ll k, ll mod) {
+    if (k > n)
+        return 0;
+
+    if (k == 0 || k == n)
+        return 1;
+
+    return (nCk(n - 1, k - 1, mod)
+           + nCk(n - 1, k, mod)) % mod;
+}
+
+ll MAXN = 3e5;
+vector<ll> factorial(MAXN+1);
+
+long long binomial_coefficient(ll n, ll k) {
+    return factorial[n] * inverse(factorial[k] * factorial[n - k] % MOD, MOD) % MOD;
+}
+
+void solve()
+{
+    int n;
+    cin >> n;
+    vector<ll> w(n);
+    for (int i = 0; i < n; i++){
+        cin >> w[i];
+    }
+    ll sum = 0;
+    vector<int> counts;
+    for (int i = 0; i < n; i+=3){
+        ll max_w = max(w[i]+w[i+1], max(w[i]+w[i+2], w[i+1]+w[i+2]));
+        sum += max_w;
+        int cnt = 0;
+        cnt += max_w == (w[i] + w[i+1]);
+        cnt += max_w == (w[i] + w[i+2]);
+        cnt += max_w == (w[i+1] + w[i+2]);
+        counts.push_back(cnt);
+    }
+    ll prod = 1;
+    for(int i=0;i<counts.size();i++){
+        prod = (prod*counts[i])%MOD;
+    }
+    ll triplets = n/3;
+    prod = (prod * binomial_coefficient(triplets, triplets/2)) % MOD;
+    cout << prod << endl;
+}
+
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    
+    int T = 1; // number of test cases
+    factorial[0] = 1;
+    for(int i=1;i<=MAXN;i++){
+        factorial[i] = factorial[i-1] * i % MOD;
+    }
+
+    while (T--){
+        solve();
+    }
+
+    return 0;
+}
